@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "apollo": true,
+    "express": true,
+    "firebase": true,
+    "nestjs": true,
+    "fastify": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true
+}

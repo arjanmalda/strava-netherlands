@@ -1,0 +1,32 @@
+.ripple {
+  display: inline-block;
+  position: relative;
+  width: 4rem;
+  height: 4rem;
+}
+.ripple div {
+  position: absolute;
+  border: .25rem solid var(--color-gray-600);
+  opacity: 1;
+  border-radius: 50%;
+  animation: ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.ripple div:nth-child(2) {
+  animation-delay: -0.5s;
+}
+@keyframes ripple {
+  0% {
+    top: 1.8rem;
+    left: 1.8rem;
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: -.1rem;
+    left: -.1rem;
+    width: 3.8rem;
+    height: 3.8rem;
+    opacity: 0;
+  }
+}
