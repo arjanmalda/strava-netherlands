@@ -36,8 +36,11 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
 
     const { expires_at, access_token, refresh_token, athlete } = json;
 
-    hashedAccessToken = CryptoJS.SHA256(JSON.stringify({ access_token, expires_at })).toString();
-    hashedRefreshToken = CryptoJS.SHA256(refresh_token).toString();
+    hashedAccessToken = CryptoJS.AES.encrypt(
+      JSON.stringify({ access_token, expires_at }),
+      process.env.LOGIN_SECRET!
+    ).toString();
+    hashedRefreshToken = CryptoJS.AES.encrypt(refresh_token, process.env.LOGIN_SECRET!).toString();
 
     const usersRef = collection(db, 'users');
     const q = athlete?.id ? query(usersRef, where('id', '==', athlete?.id)) : undefined;
