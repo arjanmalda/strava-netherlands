@@ -49,7 +49,7 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
     if (!!querySnapshot && querySnapshot?.docs?.length === 0) {
       await addDoc(collection(db, 'users'), {
         id: athlete.id,
-        access_token: hashedAccessToken,
+
         refresh_token: hashedRefreshToken,
       });
     }
@@ -58,7 +58,6 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       const userRef = doc(db, 'users', querySnapshot.docs[0].id);
 
       await updateDoc(userRef, {
-        access_token: hashedAccessToken,
         refresh_token: hashedRefreshToken,
       });
 
