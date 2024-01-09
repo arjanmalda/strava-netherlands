@@ -13,9 +13,11 @@ export const SaveCookies = ({ redirectUrl, incomingCookies }: SaveCookiesProps) 
   const router = useRouter();
   useEffect(() => {
     incomingCookies.forEach((cookie) => {
-      console.log({ cookie });
-
-      Cookies.set(cookie.key, cookie.value, { expires: 365 });
+      Cookies.set(cookie.key, cookie.value, {
+        expires: 365,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Strict',
+      });
     });
     if (redirectUrl) {
       router.replace(redirectUrl);
