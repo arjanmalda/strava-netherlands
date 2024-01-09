@@ -13,8 +13,6 @@ export async function POST(request: Request) {
 
   try {
     tokenCookies.forEach((cookie) => {
-      console.log({ cookie });
-
       cookies().set(cookie.key, cookie.value, { expires: 365 });
     });
 
