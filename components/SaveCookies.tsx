@@ -1,25 +1,26 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { redirect } from 'next/navigation';
-import Cookie from 'js-cookie';
+import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 interface SaveCookiesProps {
-  cookies: { key: string; value: string }[];
+  incomingCookies: { key: string; value: string }[];
   redirectUrl?: string;
 }
 
-const SaveCookies: React.FC<SaveCookiesProps> = ({ redirectUrl, cookies }) => {
+export const SaveCookies = ({ redirectUrl, incomingCookies }: SaveCookiesProps) => {
+  const router = useRouter();
   useEffect(() => {
-    cookies.forEach((cookie) => {
-      Cookie.set(cookie.key, cookie.value, { expires: 365 });
+    incomingCookies.forEach((cookie) => {
+      console.log({ cookie });
+
+      Cookies.set(cookie.key, cookie.value, { expires: 365 });
     });
     if (redirectUrl) {
-      redirect(redirectUrl);
+      router.replace(redirectUrl);
     }
-  }, [cookies]);
+  }, []);
 
-  return <div />;
+  return <p>You are being redirected</p>;
 };
-
-export default SaveCookies;

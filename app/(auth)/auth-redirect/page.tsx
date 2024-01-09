@@ -3,7 +3,7 @@ import { db } from '@/firebase';
 import CryptoJS from 'crypto-js';
 import { redirect } from 'next/navigation';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
-import SaveCookies from '@/components/SaveCookies';
+import { SaveCookies } from '@/components/SaveCookies';
 
 const DEFAULT_ERROR_MESSAGE =
   'Er is een fout opgetreden bij het ophalen van de gebruikersgegevens. Probeer het later opnieuw.';
@@ -40,7 +40,13 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       JSON.stringify({ access_token, expires_at }),
       process.env.LOGIN_SECRET!
     ).toString();
+
     hashedRefreshToken = CryptoJS.AES.encrypt(refresh_token, process.env.LOGIN_SECRET!).toString();
+
+    const tokenCookies = [
+      { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
+      { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
+    ];
 
     const usersRef = collection(db, 'users');
     const q = athlete?.id ? query(usersRef, where('id', '==', athlete?.id)) : undefined;
@@ -49,9 +55,10 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
     if (!!querySnapshot && querySnapshot?.docs?.length === 0) {
       await addDoc(collection(db, 'users'), {
         id: athlete.id,
-
         refresh_token: hashedRefreshToken,
       });
+
+      await saveTokenToCookies(tokenCookies);
     }
 
     if (!!querySnapshot && querySnapshot?.docs?.length > 0) {
@@ -61,7 +68,7 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
         refresh_token: hashedRefreshToken,
       });
 
-      redirect('/');
+      await saveTokenToCookies(tokenCookies);
     }
 
     if (!querySnapshot) {
@@ -75,17 +82,32 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
   return (
     <div>
       {error}
-      {!!hashedAccessToken && !!hashedRefreshToken && (
-        <SaveCookies
-          redirectUrl="/"
-          cookies={[
-            { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
-            { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
-          ]}
-        />
-      )}
+      <SaveCookies
+        incomingCookies={[
+          { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
+          { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
+        ]}
+        redirectUrl={'/'}
+      />
     </div>
   );
 };
 
 export default Page;
+
+async function saveTokenToCookies(
+  tokenCookies: {
+    key: string;
+    value: string;
+  }[]
+) {
+  await fetch('http://localhost:3000//api/auth/save-tokens', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      tokenCookies,
+    }),
+  });
+}
