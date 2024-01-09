@@ -13,6 +13,7 @@ export function verifyAccessToken() {
       | {
           access_token: string;
           expires_at: number;
+          athlete_id: number;
         }
       | undefined = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 

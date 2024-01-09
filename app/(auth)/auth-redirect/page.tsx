@@ -1,17 +1,15 @@
 import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/firebase';
 import CryptoJS from 'crypto-js';
-import { redirect } from 'next/navigation';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
+import { saveTokens } from '@/utils/saveTokens';
+import { captureException } from '@/utils/captureException';
 
 const DEFAULT_ERROR_MESSAGE =
   'Er is een fout opgetreden bij het ophalen van de gebruikersgegevens. Probeer het later opnieuw.';
 
 let error: string;
-
-let hashedAccessToken;
-let hashedRefreshToken;
 
 const Page = async ({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) => {
   if (!searchParams?.code) {
@@ -32,82 +30,34 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       }),
     });
 
-    const json = await response.json();
+    const json: { expires_at?: number; access_token?: string; refresh_token?: string; athlete?: { id: number } } =
+      await response.json();
 
     const { expires_at, access_token, refresh_token, athlete } = json;
 
-    hashedAccessToken = CryptoJS.AES.encrypt(
-      JSON.stringify({ access_token, expires_at }),
-      process.env.LOGIN_SECRET!
-    ).toString();
+    const { hashedAccessToken, hashedRefreshToken } = await saveTokens({
+      access_token,
+      expires_at,
+      refresh_token,
+      athlete_id: athlete?.id,
+    });
 
-    hashedRefreshToken = CryptoJS.AES.encrypt(refresh_token, process.env.LOGIN_SECRET!).toString();
-
-    const tokenCookies = [
-      { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
-      { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
-    ];
-
-    const usersRef = collection(db, 'users');
-    const q = athlete?.id ? query(usersRef, where('id', '==', athlete?.id)) : undefined;
-    const querySnapshot = q ? await getDocs(q) : undefined;
-
-    if (!!querySnapshot && querySnapshot?.docs?.length === 0) {
-      await addDoc(collection(db, 'users'), {
-        id: athlete.id,
-        refresh_token: hashedRefreshToken,
-      });
-
-      await saveTokenToCookies(tokenCookies);
-    }
-
-    if (!!querySnapshot && querySnapshot?.docs?.length > 0) {
-      const userRef = doc(db, 'users', querySnapshot.docs[0].id);
-
-      await updateDoc(userRef, {
-        refresh_token: hashedRefreshToken,
-      });
-
-      await saveTokenToCookies(tokenCookies);
-    }
-
-    if (!querySnapshot) {
-      error = DEFAULT_ERROR_MESSAGE;
-    }
-  } catch (_error) {
+    return (
+      <div>
+        {error}
+        <SaveCookies
+          incomingCookies={[
+            { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
+            { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
+          ]}
+          redirectUrl={'/'}
+        />
+      </div>
+    );
+  } catch {
+    captureException('Error while fetching tokens in auth-redirect');
     error = DEFAULT_ERROR_MESSAGE;
-    throw _error;
   }
-
-  return (
-    <div>
-      {error}
-      <SaveCookies
-        incomingCookies={[
-          { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
-          { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
-        ]}
-        redirectUrl={'/'}
-      />
-    </div>
-  );
 };
 
 export default Page;
-
-async function saveTokenToCookies(
-  tokenCookies: {
-    key: string;
-    value: string;
-  }[]
-) {
-  await fetch('http://localhost:3000//api/auth/save-tokens', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      tokenCookies,
-    }),
-  });
-}
