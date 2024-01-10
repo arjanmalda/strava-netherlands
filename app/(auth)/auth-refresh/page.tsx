@@ -14,10 +14,6 @@ const Page = async () => {
   try {
     const response = await refreshTokens();
 
-    if (response) {
-      saveTokens(response);
-    }
-
     if (!response) {
       redirect('/login');
     }
@@ -38,7 +34,8 @@ const Page = async () => {
     );
   } catch {
     error = DEFAULT_ERROR_MESSAGE;
-    captureException('Error while fetching tokens in auth-redirect');
+    captureException('Error while fetching tokens in auth-refresh');
+    redirect('/login');
   }
 };
 
