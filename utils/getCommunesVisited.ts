@@ -1,8 +1,13 @@
+import { db } from '@/firebase';
 import { communeOfCoordinate } from '@/utils/communeOfCoordinate';
 import { getDecryptedAccessToken } from '@/utils/decryptTokens';
 import { getActivities } from '@/utils/getActivities';
 import { getCommuneData } from '@/utils/getCommuneData';
 import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
+import { Activity } from '@/utils/types';
+import { captureException } from '@sentry/nextjs';
+import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
+import { updateDoc } from 'firebase/firestore/lite';
 
 export const getCommunesVisited = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
@@ -23,9 +28,11 @@ export const getCommunesVisited = async () => {
     allTimeCommunes.push(communesForActivity);
   }
 
-  const uniqueCommunes = new Set(allTimeCommunes.flat());
+  const uniqueCommunes = Array.from(new Set(allTimeCommunes.flat()));
 
-  return Array.from(uniqueCommunes);
+  storeCommunesVisitedInFirebase(uniqueCommunes, userId);
+
+  return uniqueCommunes;
 };
 
 function getCommunesForActivity(
@@ -49,4 +56,32 @@ function getCommunesForActivity(
   const uniqueCommunes = new Set(communes);
 
   return Array.from(uniqueCommunes).filter(Boolean);
+}
+
+export async function storeCommunesVisitedInFirebase(communes: string[], userId?: number) {
+  try {
+    console.log({ communes });
+
+    const usersRef = collection(db, 'users');
+    const q = userId ? query(usersRef, where('id', '==', userId.toString())) : undefined;
+    const querySnapshot = q ? await getDocs(q) : undefined;
+
+    if (!querySnapshot) return;
+    if (!!querySnapshot && querySnapshot?.docs?.length === 0) {
+      await addDoc(collection(db, 'users'), {
+        id: userId,
+        communes,
+      });
+    }
+
+    if (!!querySnapshot && querySnapshot?.docs?.length > 0) {
+      const userRef = doc(db, 'users', querySnapshot.docs[0].id);
+
+      await updateDoc(userRef, {
+        communes,
+      });
+    }
+  } catch (error) {
+    captureException(error);
+  }
 }
