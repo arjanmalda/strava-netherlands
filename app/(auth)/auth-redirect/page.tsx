@@ -1,6 +1,3 @@
-import { addDoc, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
-import { db } from '@/firebase';
-import CryptoJS from 'crypto-js';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
 import { saveTokens } from '@/utils/saveTokens';

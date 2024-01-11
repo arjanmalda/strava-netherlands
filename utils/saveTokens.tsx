@@ -19,7 +19,7 @@ export const saveTokens = async ({
 
   try {
     hashedAccessToken = CryptoJS.AES.encrypt(
-      JSON.stringify({ access_token, expires_at }),
+      JSON.stringify({ access_token, expires_at, athlete_id }),
       process.env.LOGIN_SECRET!
     ).toString();
 

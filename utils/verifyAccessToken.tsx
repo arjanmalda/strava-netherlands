@@ -1,21 +1,11 @@
+import { getDecryptedAccessToken } from '@/utils/decryptTokens';
 import { ACCESS_TOKEN_KEY } from '@/utils/tokens';
 import CryptoJS from 'crypto-js';
 import { cookies } from 'next/headers';
 
 export function verifyAccessToken() {
   try {
-    const access_token = cookies().get(ACCESS_TOKEN_KEY)?.value;
-
-    if (!access_token) return false;
-
-    const bytes = CryptoJS.AES.decrypt(access_token, process.env.LOGIN_SECRET!);
-    const decryptedData:
-      | {
-          access_token: string;
-          expires_at: number;
-          athlete_id: number;
-        }
-      | undefined = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    const decryptedData = getDecryptedAccessToken();
 
     if (!decryptedData) return false;
 

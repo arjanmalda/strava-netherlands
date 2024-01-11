@@ -1,7 +1,7 @@
 import { REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { cookies } from 'next/headers';
-import CryptoJS from 'crypto-js';
 import { captureException } from '@/utils/captureException';
+import { getDecryptedRefreshToken } from '@/utils/decryptTokens';
 
 const TOKEN_ENDPOINT = 'https://www.strava.com/oauth/token';
 
@@ -12,16 +12,12 @@ export async function refreshTokens() {
     return;
   }
 
-  const bytes = CryptoJS.AES.decrypt(refresh_token, process.env.LOGIN_SECRET!);
-  const decryptedData: {
-    refresh_token?: string;
-    athlete_id?: number;
-  } = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  const decryptedData = getDecryptedRefreshToken();
 
   const body = JSON.stringify({
     client_id: process.env.STRAVA_CLIENT_ID,
     client_secret: process.env.STRAVA_CLIENT_SECRET,
-    refresh_token: decryptedData.refresh_token,
+    refresh_token: decryptedData?.refresh_token,
     grant_type: 'refresh_token',
   });
 
@@ -46,5 +42,5 @@ export async function refreshTokens() {
     refresh_token?: string;
   } = await response.json();
 
-  return { ...tokens, athlete_id: decryptedData.athlete_id };
+  return { ...tokens, athlete_id: decryptedData?.athlete_id };
 }

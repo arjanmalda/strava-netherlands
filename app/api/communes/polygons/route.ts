@@ -1,8 +1,8 @@
-import { getCommuneData } from "@/helpers/apiCalls";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+import { getCommuneData } from '../../../../utils/getCommuneData';
 
 export async function GET() {
-  const communeData = await getCommuneData();
+  const communeData = getCommuneData();
 
   const polygons = convertCommuneDataToPolygons(communeData);
 
