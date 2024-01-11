@@ -10,7 +10,8 @@ export const DEFAULT_ERROR_MESSAGE =
 
 let error: string;
 
-const Page = async () => {
+const Page = async ({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) => {
+  const redirectUrl = searchParams?.redirect_url ? searchParams.redirect_url?.toString() : '/';
   try {
     const response = await refreshTokens();
 
@@ -28,7 +29,7 @@ const Page = async () => {
             { key: ACCESS_TOKEN_KEY, value: hashedAccessToken },
             { key: REFRESH_TOKEN_KEY, value: hashedRefreshToken },
           ]}
-          redirectUrl={'/'}
+          redirectUrl={redirectUrl}
         />
       </div>
     );
