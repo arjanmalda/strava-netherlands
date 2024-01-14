@@ -4,5 +4,7 @@ import { getCommunesVisited } from '@/utils/getCommunesVisited';
 export default async function Home() {
   const communes = await getCommunesVisited();
 
+  console.log({ communes });
+
   return <p>Strava Netherlands</p>;
 }

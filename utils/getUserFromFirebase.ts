@@ -1,10 +1,14 @@
 import { db } from '@/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 export async function getUserFromFirebase(userId: number) {
   try {
-    const userSnapShot = await getDocs(collection(db, 'users'));
-    const user = userSnapShot.docs[0].data();
+    const usersRef = collection(db, 'users');
+
+    const q = query(usersRef, where('id', '==', userId));
+
+    const userSnapshot = await getDocs(q);
+    const user = userSnapshot.docs?.[0]?.data();
 
     return user;
   } catch (error) {

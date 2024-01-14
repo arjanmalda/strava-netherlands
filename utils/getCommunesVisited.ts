@@ -1,6 +1,9 @@
 import { db } from '@/firebase';
 import { communeOfCoordinate } from '@/utils/communeOfCoordinate';
 import { getDecryptedAccessToken } from '@/utils/decryptTokens';
+import { getActivities } from '@/utils/getActivities';
+import { getCommuneData } from '@/utils/getCommuneData';
+import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
 import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
 import { captureException } from '@sentry/nextjs';
 import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
@@ -13,33 +16,31 @@ export const getCommunesVisited = async () => {
 
   const user = await getUserFromFirebase(userId);
 
-  console.log({ user });
+  if (user) {
+    return user.communes;
+  }
 
-  // if (user) {
-  //   return user.communes;
-  // }
+  const activities = await getActivities(userId);
 
-  // const activities = await getActivities(userId);
+  const latLongsOfAllActivities = getDecodedPolylines(activities);
 
-  // const latLongsOfAllActivities = getDecodedPolylines(activities);
+  if (!latLongsOfAllActivities) return [];
 
-  // if (!latLongsOfAllActivities) return [];
+  const communeData = getCommuneData();
 
-  // const communeData = getCommuneData();
+  const allTimeCommunes = [];
 
-  // const allTimeCommunes = [];
+  for (let index = 0; index < latLongsOfAllActivities.length; index++) {
+    const communesForActivity = getCommunesForActivity(latLongsOfAllActivities[index], communeData);
 
-  // for (let index = 0; index < latLongsOfAllActivities.length; index++) {
-  //   const communesForActivity = getCommunesForActivity(latLongsOfAllActivities[index], communeData);
+    allTimeCommunes.push(communesForActivity);
+  }
 
-  //   allTimeCommunes.push(communesForActivity);
-  // }
+  const uniqueCommunes = Array.from(new Set(allTimeCommunes.flat()));
 
-  // const uniqueCommunes = Array.from(new Set(allTimeCommunes.flat()));
+  storeCommunesVisitedInFirebase(uniqueCommunes, userId);
 
-  // storeCommunesVisitedInFirebase(uniqueCommunes, userId);
-
-  // return uniqueCommunes;
+  return uniqueCommunes;
 };
 
 function getCommunesForActivity(
