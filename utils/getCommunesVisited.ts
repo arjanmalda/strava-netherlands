@@ -1,13 +1,10 @@
-import { db } from '@/firebase';
 import { communeOfCoordinate } from '@/utils/communeOfCoordinate';
 import { getDecryptedAccessToken } from '@/utils/decryptTokens';
 import { getActivities } from '@/utils/getActivities';
 import { getCommuneData } from '@/utils/getCommuneData';
 import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
 import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
-import { captureException } from '@sentry/nextjs';
-import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
-import { updateDoc } from 'firebase/firestore/lite';
+import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
 
 export const getCommunesVisited = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
@@ -16,7 +13,7 @@ export const getCommunesVisited = async () => {
 
   const user = await getUserFromFirebase(userId);
 
-  if (user) {
+  if (user?.communes) {
     return user.communes;
   }
 
@@ -38,13 +35,13 @@ export const getCommunesVisited = async () => {
 
   const uniqueCommunes = Array.from(new Set(allTimeCommunes.flat()));
 
-  storeCommunesVisitedInFirebase(uniqueCommunes, userId);
+  await updateUserInFirebase(userId, { communes: uniqueCommunes, id: userId });
 
   return uniqueCommunes;
 };
 
 function getCommunesForActivity(
-  activity: number[][],
+  activity: number[][] | [number, number],
   communeData: {
     boundaries: number[][];
     name: string;
@@ -54,7 +51,7 @@ function getCommunesForActivity(
 
   for (let index = 0; index < activity.length; index++) {
     const point = activity[index];
-    if (index % 2 === 0) {
+    if (index % 2 === 0 && Array.isArray(point)) {
       const communeOfCurrentPoint = communeOfCoordinate(point, communeData) || '';
 
       communes.push(communeOfCurrentPoint);
@@ -64,30 +61,4 @@ function getCommunesForActivity(
   const uniqueCommunes = new Set(communes);
 
   return Array.from(uniqueCommunes).filter(Boolean);
-}
-
-async function storeCommunesVisitedInFirebase(communes: string[], userId?: number) {
-  try {
-    const usersRef = collection(db, 'users');
-    const q = userId ? query(usersRef, where('id', '==', userId.toString())) : undefined;
-    const querySnapshot = q ? await getDocs(q) : undefined;
-
-    if (!querySnapshot) return;
-    if (!!querySnapshot && querySnapshot?.docs?.length === 0) {
-      await addDoc(collection(db, 'users'), {
-        id: userId,
-        communes,
-      });
-    }
-
-    if (!!querySnapshot && querySnapshot?.docs?.length > 0) {
-      const userRef = doc(db, 'users', querySnapshot.docs[0].id);
-
-      await updateDoc(userRef, {
-        communes,
-      });
-    }
-  } catch (error) {
-    captureException(error);
-  }
 }
