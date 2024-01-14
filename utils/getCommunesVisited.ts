@@ -1,10 +1,7 @@
 import { db } from '@/firebase';
 import { communeOfCoordinate } from '@/utils/communeOfCoordinate';
 import { getDecryptedAccessToken } from '@/utils/decryptTokens';
-import { getActivities } from '@/utils/getActivities';
-import { getCommuneData } from '@/utils/getCommuneData';
-import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
-import { Activity } from '@/utils/types';
+import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
 import { captureException } from '@sentry/nextjs';
 import { addDoc, collection, doc, getDocs, query, where } from 'firebase/firestore';
 import { updateDoc } from 'firebase/firestore/lite';
@@ -12,27 +9,37 @@ import { updateDoc } from 'firebase/firestore/lite';
 export const getCommunesVisited = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
 
-  const activities = await getActivities(userId);
+  if (!userId) return;
 
-  const latLongsOfAllActivities = getDecodedPolylines(activities);
+  const user = await getUserFromFirebase(userId);
 
-  if (!latLongsOfAllActivities) return [];
+  console.log({ user });
 
-  const communeData = getCommuneData();
+  // if (user) {
+  //   return user.communes;
+  // }
 
-  const allTimeCommunes = [];
+  // const activities = await getActivities(userId);
 
-  for (let index = 0; index < latLongsOfAllActivities.length; index++) {
-    const communesForActivity = getCommunesForActivity(latLongsOfAllActivities[index], communeData);
+  // const latLongsOfAllActivities = getDecodedPolylines(activities);
 
-    allTimeCommunes.push(communesForActivity);
-  }
+  // if (!latLongsOfAllActivities) return [];
 
-  const uniqueCommunes = Array.from(new Set(allTimeCommunes.flat()));
+  // const communeData = getCommuneData();
 
-  storeCommunesVisitedInFirebase(uniqueCommunes, userId);
+  // const allTimeCommunes = [];
 
-  return uniqueCommunes;
+  // for (let index = 0; index < latLongsOfAllActivities.length; index++) {
+  //   const communesForActivity = getCommunesForActivity(latLongsOfAllActivities[index], communeData);
+
+  //   allTimeCommunes.push(communesForActivity);
+  // }
+
+  // const uniqueCommunes = Array.from(new Set(allTimeCommunes.flat()));
+
+  // storeCommunesVisitedInFirebase(uniqueCommunes, userId);
+
+  // return uniqueCommunes;
 };
 
 function getCommunesForActivity(
@@ -58,10 +65,8 @@ function getCommunesForActivity(
   return Array.from(uniqueCommunes).filter(Boolean);
 }
 
-export async function storeCommunesVisitedInFirebase(communes: string[], userId?: number) {
+async function storeCommunesVisitedInFirebase(communes: string[], userId?: number) {
   try {
-    console.log({ communes });
-
     const usersRef = collection(db, 'users');
     const q = userId ? query(usersRef, where('id', '==', userId.toString())) : undefined;
     const querySnapshot = q ? await getDocs(q) : undefined;

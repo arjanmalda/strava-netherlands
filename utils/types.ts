@@ -15,7 +15,7 @@ export type CommuneData = {
     properties: {
       fid: number;
       code: number;
-      gemeentena: string;
+      communeName: string;
     };
     geometry: {
       type: string;
@@ -111,3 +111,8 @@ export interface AthleteStats {
   ytd_run_totals: ActivityTypeTotals;
   ytd_swim_totals: ActivityTypeTotals;
 }
+
+export type User = {
+  communes: string[];
+  id: number;
+};
