@@ -1,6 +1,6 @@
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
-import { saveTokens } from '@/utils/saveTokens';
+import { hashTokens } from '@/utils/hashTokens';
 import { captureException } from '@/utils/captureException';
 
 const DEFAULT_ERROR_MESSAGE =
@@ -32,7 +32,7 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
 
     const { expires_at, access_token, refresh_token, athlete } = json;
 
-    const { hashedAccessToken, hashedRefreshToken } = await saveTokens({
+    const { hashedAccessToken, hashedRefreshToken } = await hashTokens({
       access_token,
       expires_at,
       refresh_token,

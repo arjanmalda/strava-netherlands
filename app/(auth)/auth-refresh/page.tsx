@@ -2,7 +2,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
 import { refreshTokens } from '@/utils/refreshTokens';
 import { redirect } from 'next/navigation';
-import { saveTokens } from '../../../utils/saveTokens';
+import { hashTokens } from '../../../utils/hashTokens';
 import { captureException } from '@/utils/captureException';
 
 export const DEFAULT_ERROR_MESSAGE =
@@ -19,7 +19,7 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       redirect('/login');
     }
 
-    const { hashedAccessToken, hashedRefreshToken } = await saveTokens(response);
+    const { hashedAccessToken, hashedRefreshToken } = await hashTokens(response);
 
     return (
       <div>
