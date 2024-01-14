@@ -7,7 +7,7 @@ export async function updateUserInFirebase(
 ) {
   try {
     const usersRef = collection(db, 'users');
-    const q = userId ? query(usersRef, where('id', '==', userId.toString())) : undefined;
+    const q = userId ? query(usersRef, where('id', '==', userId)) : undefined;
     const querySnapshot = q ? await getDocs(q) : undefined;
 
     if (!querySnapshot) return;
