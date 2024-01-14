@@ -1,4 +1,3 @@
-import { communeOfCoordinate } from '@/utils/communeOfCoordinate';
 import { getDecryptedAccessToken } from '@/utils/decryptTokens';
 import { fetchStravaApi } from '@/utils/fetchStravaApi';
 import { getActivities } from '@/utils/getActivities';
@@ -7,6 +6,7 @@ import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
 import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
 import { AthleteStats } from '@/utils/types';
 import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
+import { getCommunesForActivity } from './getCommunesForActivity';
 
 export const getCommunesVisited = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
@@ -61,26 +61,3 @@ export const getCommunesVisited = async () => {
 
   return uniqueCommunes;
 };
-
-function getCommunesForActivity(
-  activity: number[][] | [number, number],
-  communeData: {
-    boundaries: number[][];
-    name: string;
-  }[]
-) {
-  let communes: string[] = [];
-
-  for (let index = 0; index < activity.length; index++) {
-    const point = activity[index];
-    if (index % 2 === 0 && Array.isArray(point)) {
-      const communeOfCurrentPoint = communeOfCoordinate(point, communeData) || '';
-
-      communes.push(communeOfCurrentPoint);
-    }
-  }
-
-  const uniqueCommunes = new Set(communes);
-
-  return Array.from(uniqueCommunes).filter(Boolean);
-}
