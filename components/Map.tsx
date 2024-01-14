@@ -9,10 +9,10 @@ import React, { useEffect, useRef, ReactElement, useMemo, useState, Fragment } f
 interface Properties {
   center: MapComponentProperties['center'];
   zoom: MapComponentProperties['zoom'];
-  communesVisited?: string[];
+  communes?: string[];
 }
 
-export const Map = ({ center, zoom, communesVisited }: Properties) => {
+export const Map = ({ center, zoom, communes }: Properties) => {
   const [polygons, setPolygons] = useState<CommunePolygons>();
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export const Map = ({ center, zoom, communesVisited }: Properties) => {
   return (
     <div className={'w-full h-80'}>
       <Wrapper apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string} render={renderGoogleMaps}>
-        <MapComponent communesVisited={communesVisited} center={center} zoom={zoom} polygons={polygons} />
+        <MapComponent communes={communes} center={center} zoom={zoom} polygons={polygons} />
       </Wrapper>
     </div>
   );
@@ -40,12 +40,12 @@ const renderGoogleMaps = (status: Status): ReactElement => {
 
 interface MapComponentProperties {
   center: google.maps.LatLngLiteral;
-  communesVisited?: string[];
+  communes?: string[];
   polygons?: CommunePolygons;
   zoom: number;
 }
 
-const MapComponent = ({ center, zoom, polygons, communesVisited }: MapComponentProperties) => {
+const MapComponent = ({ center, zoom, polygons, communes }: MapComponentProperties) => {
   const [infoTitle, setInfoTitle] = useState<string>();
   const domElementReference = useRef(null);
   const mapReference = useRef<google.maps.Map>();
@@ -62,7 +62,7 @@ const MapComponent = ({ center, zoom, polygons, communesVisited }: MapComponentP
       if (mapReference.current && !!polygons) {
         for (const polygon of polygons) {
           const polyconCoords = polygon.shape;
-          const hasVisitedCommune = communesVisited?.includes(polygon.name);
+          const hasVisitedCommune = communes?.includes(polygon.name);
           const newPolygon = new window.google.maps.Polygon({
             paths: polyconCoords,
             strokeColor: hasVisitedCommune ? '#278621' : '#E84C3B',
@@ -79,7 +79,7 @@ const MapComponent = ({ center, zoom, polygons, communesVisited }: MapComponentP
         }
       }
     }
-  }, [center, communesVisited, polygons, zoom]);
+  }, [center, communes, polygons, zoom]);
 
   return (
     <Fragment>

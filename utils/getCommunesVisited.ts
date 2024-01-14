@@ -1,4 +1,3 @@
-import { getDecryptedAccessToken } from '@/utils/decryptTokens';
 import { fetchStravaApi } from '@/utils/fetchStravaApi';
 import { getActivities } from '@/utils/getActivities';
 import { getCommuneData } from '@/utils/getCommuneData';
@@ -7,9 +6,12 @@ import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
 import { AthleteStats } from '@/utils/types';
 import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
 import { getCommunesForActivity } from './getCommunesForActivity';
+import { getDecryptedTokens } from '@/utils/decryptTokens';
 
 export const getCommunesVisited = async () => {
-  const userId = getDecryptedAccessToken()?.athlete_id;
+  const decryptedTokens = await getDecryptedTokens();
+
+  const userId = decryptedTokens?.decryptedAccessToken?.athlete_id;
 
   if (!userId) return;
 

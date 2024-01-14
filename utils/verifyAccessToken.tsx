@@ -1,18 +1,19 @@
-import { getDecryptedAccessToken } from '@/utils/decryptTokens';
-import { ACCESS_TOKEN_KEY } from '@/utils/tokens';
-import CryptoJS from 'crypto-js';
-import { cookies } from 'next/headers';
+import { getDecryptedTokens } from '@/utils/decryptTokens';
 
-export function verifyAccessToken() {
+export async function verifyAccessToken() {
   try {
-    const decryptedData = getDecryptedAccessToken();
+    const decryptedTokens = await getDecryptedTokens();
 
-    if (!decryptedData) return false;
+    const decryptedAccessToken = decryptedTokens?.decryptedAccessToken;
+
+    if (!decryptedAccessToken) return false;
 
     const timestamp = new Date().getTime();
 
-    return timestamp < decryptedData.expires_at * 1000;
+    return timestamp < decryptedAccessToken.expires_at || 0 * 1000;
   } catch (error) {
+    console.log(error);
+
     return false;
   }
 }

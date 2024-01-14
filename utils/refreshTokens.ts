@@ -1,7 +1,7 @@
 import { REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { cookies } from 'next/headers';
 import { captureException } from '@/utils/captureException';
-import { getDecryptedRefreshToken } from '@/utils/decryptTokens';
+import { getDecryptedTokens } from '@/utils/decryptTokens';
 
 const TOKEN_ENDPOINT = 'https://www.strava.com/oauth/token';
 
@@ -12,7 +12,9 @@ export async function refreshTokens() {
     return;
   }
 
-  const decryptedData = getDecryptedRefreshToken();
+  const decryptedTokens = await getDecryptedTokens();
+
+  const decryptedData = decryptedTokens?.decryptedRefreshToken;
 
   const body = JSON.stringify({
     client_id: process.env.STRAVA_CLIENT_ID,

@@ -1,5 +1,4 @@
 import { ATHLETES_ENDPOINT } from '@/constants/endpoints';
-import { db } from '@/firebase';
 import { captureException } from '@/utils/captureException';
 import { fetchStravaApi } from '@/utils/fetchStravaApi';
 import { Activity } from '@/utils/types';

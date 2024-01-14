@@ -115,4 +115,6 @@ export interface AthleteStats {
 export type User = {
   communes: string[];
   id: number;
+  numberOfActivities?: number;
+  timeOfLastActivity?: number;
 };

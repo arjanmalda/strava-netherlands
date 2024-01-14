@@ -1,5 +1,5 @@
 import { captureException } from '@/utils/captureException';
-import { getDecryptedAccessToken } from '@/utils/decryptTokens';
+import { getDecryptedTokens } from '@/utils/decryptTokens';
 
 interface ResponseWithMaybeData<T> extends Response {
   data?: T;
@@ -14,7 +14,9 @@ export const fetchStravaApi = async <T>({
   method?: RequestInit['method'];
   body?: unknown;
 }) => {
-  const decryptedAccessToken = getDecryptedAccessToken()?.access_token;
+  const decryptedTokens = await getDecryptedTokens();
+
+  const decryptedAccessToken = decryptedTokens?.decryptedAccessToken?.access_token;
 
   const tryFetch = () =>
     fetch(endpoint, {

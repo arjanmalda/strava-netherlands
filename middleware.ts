@@ -4,14 +4,22 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PUBLIC_PAGES = ['/login', '/_next/static', '/favicon.ico', '/manifest.json', '/auth-redirect', '/auth-refresh'];
+const PUBLIC_PAGES = [
+  '/login',
+  '/_next/static',
+  '/favicon.ico',
+  '/manifest.json',
+  '/auth-redirect',
+  '/auth-refresh',
+  '/api/auth/decrypt-tokens',
+];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   if (PUBLIC_PAGES.some((path) => request.nextUrl.pathname.includes(path))) {
     return NextResponse.next();
   }
 
-  const isLoggedIn = verifyAccessToken();
+  const isLoggedIn = await verifyAccessToken();
 
   if (!isLoggedIn) {
     const refresh_token = cookies().get(REFRESH_TOKEN_KEY)?.value;
