@@ -2,6 +2,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
 import { hashTokens } from '@/utils/hashTokens';
 import { captureException } from '@/utils/captureException';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 const DEFAULT_ERROR_MESSAGE =
   'Er is een fout opgetreden bij het ophalen van de gebruikersgegevens. Probeer het later opnieuw.';
@@ -49,6 +50,7 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
           ]}
           redirectUrl={'/'}
         />
+        <LoadingScreen />
       </div>
     );
   } catch {

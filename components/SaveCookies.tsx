@@ -24,5 +24,5 @@ export const SaveCookies = ({ redirectUrl, incomingCookies }: SaveCookiesProps) 
     }
   }, []);
 
-  return <p>You are being redirected</p>;
+  return <p>Je wordt doorgestuurd naar de juiste pagina...</p>;
 };
