@@ -72,8 +72,7 @@ const MapComponent = ({ center, zoom, polygons, communes }: MapComponentProperti
             fillOpacity: 0.6,
           });
 
-          newPolygon.addListener('mousedown', () => setInfoTitle(polygon.name));
-          newPolygon.addListener('mouseup', () => setInfoTitle(undefined));
+          newPolygon.addListener('click', () => setInfoTitle((previous) => (previous ? undefined : polygon.name)));
 
           newPolygon.setMap(mapReference.current);
         }
@@ -103,7 +102,7 @@ const InfoPopup = ({
           'bg-white p-2 pr-0 rounded-lg shadow-lg  top-1/2 left-1/2 transform -translate-x-2/3 -translate-y-1/2 relative w-fit flex gap-1'
         }>
         <h3 className={'text-2xs font-bold text-black'}>{title}</h3>
-        <button className=" right-1 top-1 cursor-pointer [&>svg]:h-2 [&>svg]:-translate-y-1 [&>svg]:stroke-black">
+        <button className="right-2 top-2 cursor-pointer [&>svg]:h-2 [&>svg]:-translate-y-1 [&>svg]:stroke-black">
           <HeroIcon icon="XMarkIcon" />
         </button>
       </div>

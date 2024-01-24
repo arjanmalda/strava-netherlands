@@ -7,6 +7,7 @@ import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
 import { AthleteStats } from '@/utils/types';
 import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
 import { getCommunesForActivity } from './getCommunesForActivity';
+import { ATHLETES_ENDPOINT } from '@/constants/endpoints';
 
 export const getCommunesVisited = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
@@ -16,7 +17,7 @@ export const getCommunesVisited = async () => {
   const user = await getUserFromFirebase(userId);
 
   const athleteStatsFromStrava = await fetchStravaApi<AthleteStats>({
-    endpoint: `https://www.strava.com/api/v3/athletes/${userId}/stats`,
+    endpoint: `${ATHLETES_ENDPOINT}/${userId}/stats`,
   });
 
   if (!athleteStatsFromStrava) return;

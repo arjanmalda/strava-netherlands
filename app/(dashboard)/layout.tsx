@@ -4,7 +4,6 @@ import { Fragment } from 'react';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
   <Fragment>
-    <Header />
     <main className="flex-1 p-6">{children}</main>
     <Footer />
   </Fragment>
