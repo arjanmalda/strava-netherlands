@@ -15,11 +15,13 @@ export const LoadingScreen = () => {
     };
   }, []);
 
-  <div>
-    {progress > 10 && progress < 30 && <div>We zijn even aan het warmdraaien...</div>}
-    {progress > 30 && progress < 60 && <div>Activiteitengeschiedenis analyseren...</div>}
-    {progress > 60 && progress < 80 && <div>Gemeentes aan het berekenen...</div>}
-    {progress > 80 && <div>De laatste loodjes...</div>}
-    <Loader />
-  </div>;
+  return (
+    <div>
+      {progress > 10 && progress < 30 && <div>We zijn even aan het warmdraaien...</div>}
+      {progress > 30 && progress < 60 && <div>Activiteitengeschiedenis analyseren...</div>}
+      {progress > 60 && progress < 80 && <div>Gemeentes aan het berekenen...</div>}
+      {progress > 80 && <div>De laatste loodjes...</div>}
+      <Loader />
+    </div>
+  );
 };

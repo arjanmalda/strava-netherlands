@@ -9,7 +9,7 @@ import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
 import { getCommunesForActivity } from './getCommunesForActivity';
 import { ATHLETES_ENDPOINT } from '@/constants/endpoints';
 
-export const getCommunesVisited = async () => {
+export const getUser = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
 
   if (!userId) return;
@@ -60,5 +60,5 @@ export const getCommunesVisited = async () => {
     timeOfLastActivity: new Date(activities.at(-1)?.start_date || '').getTime(),
   });
 
-  return uniqueCommunes;
+  return { communes: uniqueCommunes, user };
 };

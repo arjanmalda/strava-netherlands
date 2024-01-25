@@ -3,6 +3,7 @@ import { SaveCookies } from '@/components/SaveCookies';
 import { hashTokens } from '@/utils/hashTokens';
 import { captureException } from '@/utils/captureException';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
 
 const DEFAULT_ERROR_MESSAGE =
   'Er is een fout opgetreden bij het ophalen van de gebruikersgegevens. Probeer het later opnieuw.';
@@ -28,8 +29,12 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       }),
     });
 
-    const json: { expires_at?: number; access_token?: string; refresh_token?: string; athlete?: { id: number } } =
-      await response.json();
+    const json: {
+      expires_at?: number;
+      access_token?: string;
+      refresh_token?: string;
+      athlete?: { id: number; profile?: string };
+    } = await response.json();
 
     const { expires_at, access_token, refresh_token, athlete } = json;
 
@@ -39,6 +44,10 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       refresh_token,
       athlete_id: athlete?.id,
     });
+
+    if (athlete?.id) {
+      await updateUserInFirebase(athlete?.id, { profilePicture: athlete?.profile });
+    }
 
     return (
       <div>
@@ -50,7 +59,6 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
           ]}
           redirectUrl={'/'}
         />
-        <LoadingScreen />
       </div>
     );
   } catch {
