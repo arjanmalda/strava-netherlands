@@ -32,16 +32,6 @@ export const fetchStravaApi = async <T>({
     });
 
   const response: ResponseWithMaybeData<T> = await tryFetch();
-  console.log({
-    method,
-    ...(body ? { body: JSON.stringify(body) } : {}),
-    headers: {
-      ...(accessTokenToUse ? { Authorization: `Bearer ${accessTokenToUse}` } : {}),
-      Accept: 'application/json',
-      'Content-type': 'application/json',
-      endpoint,
-    },
-  });
 
   const json: T = await response.json();
 
