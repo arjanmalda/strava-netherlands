@@ -9,11 +9,12 @@ import { db } from '@/firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { getUser } from '@/utils/getUser';
 
-export const saveUser = async (userId: number, additionalData?: { [x: string]: unknown }) => {
+export const saveUser = async (userId: number, additionalData?: { [x: string]: unknown }, accessToken?: string) => {
   const user = await getUser();
 
   const athleteStatsFromStrava = await fetchStravaApi<AthleteStats>({
     endpoint: `${ATHLETES_ENDPOINT}/${userId}/stats`,
+    overrideAccessToken: accessToken,
   });
 
   if (!athleteStatsFromStrava) return;
@@ -27,7 +28,7 @@ export const saveUser = async (userId: number, additionalData?: { [x: string]: u
     return user.communes;
   }
 
-  const activities = await getActivities({ userId, offsetEpoch: user?.timeOfLastActivity });
+  const activities = await getActivities({ userId, offsetEpoch: user?.timeOfLastActivity }, accessToken);
 
   if (!activities) return [];
 

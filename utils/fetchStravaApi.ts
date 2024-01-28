@@ -9,26 +9,39 @@ export const fetchStravaApi = async <T>({
   endpoint,
   method = 'GET',
   body,
+  overrideAccessToken,
 }: {
   endpoint: string;
   method?: RequestInit['method'];
   body?: unknown;
+  overrideAccessToken?: string;
 }) => {
   const decryptedAccessToken = getDecryptedAccessToken()?.access_token;
+
+  const accessTokenToUse = decryptedAccessToken || overrideAccessToken;
 
   const tryFetch = () =>
     fetch(endpoint, {
       method,
       ...(body ? { body: JSON.stringify(body) } : {}),
       headers: {
-        ...(decryptedAccessToken ? { Authorization: `Bearer ${decryptedAccessToken}` } : {}),
+        ...(accessTokenToUse ? { Authorization: `Bearer ${accessTokenToUse}` } : {}),
         Accept: 'application/json',
         'Content-type': 'application/json',
-        Host: process.env.NEXT_PUBLIC_BACKEND_HOST!,
       },
     });
 
   const response: ResponseWithMaybeData<T> = await tryFetch();
+  console.log({
+    method,
+    ...(body ? { body: JSON.stringify(body) } : {}),
+    headers: {
+      ...(accessTokenToUse ? { Authorization: `Bearer ${accessTokenToUse}` } : {}),
+      Accept: 'application/json',
+      'Content-type': 'application/json',
+      endpoint,
+    },
+  });
 
   const json: T = await response.json();
 

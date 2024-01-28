@@ -2,7 +2,6 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
 import { hashTokens } from '@/utils/hashTokens';
 import { captureException } from '@/utils/captureException';
-import { LoadingScreen } from '@/components/LoadingScreen';
 import { saveUser } from '@/utils/saveUser';
 
 const DEFAULT_ERROR_MESSAGE =
@@ -45,8 +44,8 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       athlete_id: athlete?.id,
     });
 
-    if (athlete?.id) {
-      await saveUser(athlete?.id, { profilePicture: athlete?.profile });
+    if (athlete?.id && !!access_token) {
+      await saveUser(athlete?.id, { profilePicture: athlete?.profile }, access_token);
     }
 
     return (

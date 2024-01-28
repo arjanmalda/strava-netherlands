@@ -13,11 +13,15 @@ const allData: {
   activities: Activity[] | Activity[][];
 } = { numberOfPages: 0, activities: [] };
 
-export const getActivities = async ({ userId, offsetEpoch }: { userId?: number; offsetEpoch: number }) => {
+export const getActivities = async (
+  { userId, offsetEpoch }: { userId?: number; offsetEpoch: number },
+  accessToken?: string
+) => {
   if (!userId) return;
   try {
     const data = await fetchStravaApi<Activity[]>({
       endpoint: `${ATHLETES_ENDPOINT}/${userId}/activities?per_page=${ITEMS_PER_PAGE}&page=${PAGE_TO_FETCH}`,
+      overrideAccessToken: accessToken,
     });
 
     if (data) {
@@ -28,7 +32,7 @@ export const getActivities = async ({ userId, offsetEpoch }: { userId?: number; 
       if (data.length === ITEMS_PER_PAGE) {
         PAGE_TO_FETCH++;
         CURRENT_PAGE++;
-        await getActivities({ userId, offsetEpoch });
+        await getActivities({ userId, offsetEpoch }, accessToken);
       }
       const activities = allData.activities.flat();
 

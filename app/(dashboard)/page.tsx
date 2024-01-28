@@ -2,6 +2,7 @@ import { CardWithLink } from '@/components/Card';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { Map } from '@/components/Map';
 import { MaxWidth } from '@/components/MaxWidth';
+import { getDecryptedAccessToken } from '@/utils/decryptTokens';
 import { getUser } from '@/utils/getUser';
 import Image from 'next/image';
 import { Fragment } from 'react';
@@ -30,7 +31,7 @@ export default async function Home() {
                 <p>{user?.communes?.length} / 342</p>
               </CardWithLink>
               <CardWithLink title="Total cycling distance">
-                <p>{Math.round(user?.distance ?? 0).toLocaleString('nl')} km</p>
+                <p>{Math.round(user?.distance ? user?.distance / 1000 : 0).toLocaleString('nl')} km</p>
               </CardWithLink>
             </div>
           </MaxWidth>
