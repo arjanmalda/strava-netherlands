@@ -1,20 +1,23 @@
 import { getDecryptedAccessToken } from '@/utils/decryptTokens';
-import { fetchStravaApi } from '@/utils/fetchStravaApi';
-import { getActivities } from '@/utils/getActivities';
-import { getCommuneData } from '@/utils/getCommuneData';
-import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
-import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
-import { AthleteStats } from '@/utils/types';
-import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
-import { getCommunesForActivity } from './getCommunesForActivity';
-import { ATHLETES_ENDPOINT } from '@/constants/endpoints';
+import { db } from '@/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export const getUser = async () => {
   const userId = getDecryptedAccessToken()?.athlete_id;
 
   if (!userId) return;
 
-  const user = await getUserFromFirebase(userId);
+  try {
+    const usersRef = collection(db, 'users');
 
-  return user;
+    const q = query(usersRef, where('id', '==', userId));
+
+    const userSnapshot = await getDocs(q);
+    const user = userSnapshot.docs?.[0]?.data();
+
+    return user;
+  } catch (error) {
+    console.error('Error fetching user from Firebase:', error);
+    throw error;
+  }
 };

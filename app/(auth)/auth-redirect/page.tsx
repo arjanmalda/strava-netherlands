@@ -3,7 +3,7 @@ import { SaveCookies } from '@/components/SaveCookies';
 import { hashTokens } from '@/utils/hashTokens';
 import { captureException } from '@/utils/captureException';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
+import { saveUser } from '@/utils/saveUser';
 
 const DEFAULT_ERROR_MESSAGE =
   'Er is een fout opgetreden bij het ophalen van de gebruikersgegevens. Probeer het later opnieuw.';
@@ -46,7 +46,7 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
     });
 
     if (athlete?.id) {
-      await updateUserInFirebase(athlete?.id, { profilePicture: athlete?.profile });
+      await saveUser(athlete?.id, { profilePicture: athlete?.profile });
     }
 
     return (

@@ -24,13 +24,13 @@ export default async function Home() {
           <MaxWidth>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
               <CardWithLink title="Cycling activities">
-                <p>{user?.numberOfActivities || allCyclingActivities?.length}</p>
+                <p>{user.numberOfCyclingActivities}</p>
               </CardWithLink>
               <CardWithLink title="Communes visited">
                 <p>{user?.communes?.length} / 342</p>
               </CardWithLink>
               <CardWithLink title="Total cycling distance">
-                <p>{Math.round(activityData?.distance ?? 0).toLocaleString('nl')} km</p>
+                <p>{Math.round(user?.distance ?? 0).toLocaleString('nl')} km</p>
               </CardWithLink>
             </div>
           </MaxWidth>

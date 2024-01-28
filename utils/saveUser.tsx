@@ -4,12 +4,13 @@ import { getActivities } from '@/utils/getActivities';
 import { getCommuneData } from '@/utils/getCommuneData';
 import { getCommunesForActivity } from '@/utils/getCommunesForActivity';
 import { getDecodedPolylines } from '@/utils/getDecodedPolylines';
-import { getUserFromFirebase } from '@/utils/getUserFromFirebase';
 import { AthleteStats } from '@/utils/types';
-import { updateUserInFirebase } from '@/utils/updateUserInFirebase';
+import { db } from '@/firebase';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { getUser } from '@/utils/getUser';
 
-export const saveUser = async (userId: number) => {
-  const user = await getUserFromFirebase(userId);
+export const saveUser = async (userId: number, additionalData?: { [x: string]: unknown }) => {
+  const user = await getUser();
 
   const athleteStatsFromStrava = await fetchStravaApi<AthleteStats>({
     endpoint: `${ATHLETES_ENDPOINT}/${userId}/stats`,
@@ -48,12 +49,33 @@ export const saveUser = async (userId: number) => {
 
   const uniqueCommunes: string[] = Array.from(new Set([...allTimeCommunes.flat(), ...existingCommunes]));
 
-  await updateUserInFirebase(userId, {
+  const newUserData = {
     communes: uniqueCommunes,
     id: userId,
     distance: athleteStatsFromStrava.all_ride_totals?.distance,
     numberOfActivities,
     numberOfCyclingActivities: athleteStatsFromStrava.all_ride_totals?.count,
     timeOfLastActivity: new Date(activities.at(-1)?.start_date || '').getTime(),
-  });
+    ...additionalData,
+  };
+
+  try {
+    const usersRef = collection(db, 'users');
+    const q = userId ? query(usersRef, where('id', '==', userId)) : undefined;
+    const querySnapshot = q ? await getDocs(q) : undefined;
+
+    if (!querySnapshot) return;
+    if (!!querySnapshot && querySnapshot?.docs?.length === 0) {
+      await addDoc(collection(db, 'users'), newUserData);
+    }
+
+    if (!!querySnapshot && querySnapshot?.docs?.length > 0) {
+      const userRef = doc(db, 'users', querySnapshot.docs[0].id);
+
+      await updateDoc(userRef, newUserData);
+    }
+  } catch (error) {
+    console.error('Error updating user in Firebase:', error);
+    throw error;
+  }
 };
