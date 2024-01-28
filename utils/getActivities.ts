@@ -6,7 +6,6 @@ import { Activity } from '@/utils/types';
 
 const ITEMS_PER_PAGE = 50;
 let PAGE_TO_FETCH = 1;
-let CURRENT_PAGE = 1;
 
 const allData: {
   numberOfPages: number;
@@ -15,13 +14,13 @@ const allData: {
 
 export const getActivities = async (
   { userId, offsetEpoch }: { userId?: number; offsetEpoch: number },
-  accessToken?: string
+  access_token?: string
 ) => {
   if (!userId) return;
   try {
     const data = await fetchStravaApi<Activity[]>({
       endpoint: `${ATHLETES_ENDPOINT}/${userId}/activities?per_page=${ITEMS_PER_PAGE}&page=${PAGE_TO_FETCH}`,
-      overrideAccessToken: accessToken,
+      access_token,
     });
 
     if (data) {
@@ -31,8 +30,7 @@ export const getActivities = async (
 
       if (data.length === ITEMS_PER_PAGE) {
         PAGE_TO_FETCH++;
-        CURRENT_PAGE++;
-        await getActivities({ userId, offsetEpoch }, accessToken);
+        await getActivities({ userId, offsetEpoch }, access_token);
       }
       const activities = allData.activities.flat();
 

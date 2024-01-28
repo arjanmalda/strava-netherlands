@@ -2,7 +2,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/utils/tokens';
 import { SaveCookies } from '@/components/SaveCookies';
 import { hashTokens } from '@/utils/hashTokens';
 import { captureException } from '@/utils/captureException';
-import { saveUser } from '@/utils/saveUser';
+import { SaveUser } from '@/components/SaveUser';
 
 const DEFAULT_ERROR_MESSAGE =
   'Er is een fout opgetreden bij het ophalen van de gebruikersgegevens. Probeer het later opnieuw.';
@@ -44,10 +44,6 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
       athlete_id: athlete?.id,
     });
 
-    if (athlete?.id && !!access_token) {
-      await saveUser(athlete?.id, { profilePicture: athlete?.profile }, access_token);
-    }
-
     return (
       <div>
         {error}
@@ -58,6 +54,9 @@ const Page = async ({ searchParams }: { searchParams?: { [key: string]: string |
           ]}
           redirectUrl={'/'}
         />
+        {!!access_token && athlete?.id && (
+          <SaveUser access_token={access_token} userId={athlete?.id} profilePicture={athlete.profile} />
+        )}
       </div>
     );
   } catch {
