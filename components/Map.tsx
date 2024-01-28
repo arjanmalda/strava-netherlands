@@ -32,11 +32,17 @@ export const Map = ({ center, zoom, communes }: Properties) => {
   );
 };
 
-const renderGoogleMaps = (status: Status): ReactElement => {
-  if (status === Status.LOADING) return <h3>{status} ..</h3>;
-  if (status === Status.FAILURE) return <h3>{status} ...</h3>;
-  return <React.Fragment> </React.Fragment>;
-};
+const renderGoogleMaps = (status: Status): ReactElement => (
+  <div className="h-full w-full flex justify-center items-center">
+    {status === Status.LOADING ? (
+      <h3>{'Kaart ophalen...'}</h3>
+    ) : status === Status.FAILURE ? (
+      <h3>{'Er is iets misgegaan'}</h3>
+    ) : (
+      <Fragment />
+    )}
+  </div>
+);
 
 interface MapComponentProperties {
   center: google.maps.LatLngLiteral;

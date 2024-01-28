@@ -4,7 +4,6 @@ import CryptoJS from 'crypto-js';
 
 export const getDecryptedAccessToken = () => {
   const access_token = cookies().get(ACCESS_TOKEN_KEY)?.value;
-  const allCookies = cookies();
 
   if (!access_token) {
     return;

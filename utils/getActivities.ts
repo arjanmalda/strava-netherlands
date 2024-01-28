@@ -17,7 +17,7 @@ export const getActivities = async ({ userId, offsetEpoch }: { userId?: number; 
   if (!userId) return;
   try {
     const data = await fetchStravaApi<Activity[]>({
-      endpoint: `${ATHLETES_ENDPOINT}/${userId}/activities?per_page=${ITEMS_PER_PAGE}&page=${PAGE_TO_FETCH}&after=${offsetEpoch}`,
+      endpoint: `${ATHLETES_ENDPOINT}/${userId}/activities?per_page=${ITEMS_PER_PAGE}&page=${PAGE_TO_FETCH}`,
     });
 
     if (data) {
